@@ -29,7 +29,6 @@ public class serverListener implements Runnable {
      * li envia el servidor de missatgeria i ho processarà de forma adeqüada.
      * 
      */
-
     ViewModel vm;
 
     public serverListener(ViewModel vm) {
@@ -48,7 +47,6 @@ public class serverListener implements Runnable {
             // i el guardem a listenPort.
             listener = new ServerSocket(0);
             CurrentConfig.setlistenPort(listener.getLocalPort());
-            
 
         } catch (IOException e) {
             System.out.println("El port " + listenerPort + " està ocupato és inaccessible.");
@@ -59,18 +57,33 @@ public class serverListener implements Runnable {
         // 2. Iniciem un bucle infinit a l'espera de rebre connexions
         // Quan arribe una connexió la processrem de manera adeqüada
         // Les peticions que podme rebre seran de tipus:
-        
         // {"type": "userlist", "content": [Llista d'usuaris]}, amb un JSONArray amb la llista d'usuaris.
         // {"type": "message", "user":"usuari", "content": "Contingut del missatge" }
-        
         // És interessant implementar un mètode a banda per processat aquestes línies
         // però no cal que creem un fil a propòsit per atendre cada missatge, ja que
         // no som un servidor com a tal, i el que estem fent aci, és mantindre un 
         // canal de recepció només amb el servidor.
+        
+        
+//        ViewModel.llistaUsuaris;
 
+        String command = message.getString("command");
         
-        
-        
+        if ("userlist".equals(command)) {
+           communicationManager.sendServer(msg);
+            // Lógica para el comando "register"
+            return "{\"status\": \"ok\"}";
+
+        } else if ("message".equals(command)) {
+            // Lógica para el comando "newMessage"
+            communicationManager.sendMessage(message);
+            return "{\"status\": \"ok\"}";
+        } else {
+            // Manejo de comandos desconocidos o incorrectos
+            return "{\"status\": \"error\", \"error\":\"Mensaje de error\"}";
+        }
     }
+
+}
 
 }
