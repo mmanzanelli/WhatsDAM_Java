@@ -90,6 +90,22 @@ public class communicationManager {
         // l'aplicaió (per exemple, si l'usuari ja existeix al servidor)
         // Teniu per a això l'excepció communicationManagerException 
         // com a excepció personalitzada al projecte. 
+         // Preparar el missatge per al servidor
+         try{
+             
+            JSONObject message = new JSONObject();
+            message.put("command", "register");
+            message.put("user", "NomUsuari");
+            message.put("listenPort", CurrentConfig.listenPort()); // Assumint que aquest mètode retorna el port desitjat
+
+            sendServer(message.toString());
+            
+         }catch(communicationManagerException | JSONException e){
+           throw new CommunicationManagerException("Error en la connexió al servidor", e);
+             
+         }
+            
+    
     }
 
     public static void sendMessage(Message m) {

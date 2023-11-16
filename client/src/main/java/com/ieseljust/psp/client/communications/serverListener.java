@@ -48,8 +48,26 @@ public class serverListener implements Runnable {
             listener = new ServerSocket(0);
             CurrentConfig.setlistenPort(listener.getLocalPort());
 
+            
+             while (true) {
+                Socket clientSocket = listener.accept(); // Accepta la connexió entrant
+               
+
+                // Llegir el missatge rebut del client
+                BufferedReader reader = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+                String clientMessage = reader.readLine();
+
+                // Processar el missatge rebuda
+                processMessage(clientMessage);
+
+                // Tancar el socket del client
+                clientSocket.close();
+            }
+            
+            
+            
         } catch (IOException e) {
-            System.out.println("El port " + listenerPort + " està ocupato és inaccessible.");
+            System.out.println("El port " + listenerPort + " està ocupat o és inaccessible.");
             return;
         }
 
@@ -67,20 +85,28 @@ public class serverListener implements Runnable {
         
 //        ViewModel.llistaUsuaris;
 
-        String command = message.getString("command");
         
-        if ("userlist".equals(command)) {
-           communicationManager.sendServer(msg);
-            // Lógica para el comando "register"
-            return "{\"status\": \"ok\"}";
+    }
+      private static void processMessage(String message) {
+        try {
+            JSONObject jsonObject = new JSONObject(message);
+            String messageType = jsonObject.getString("type");
 
-        } else if ("message".equals(command)) {
-            // Lógica para el comando "newMessage"
-            communicationManager.sendMessage(message);
-            return "{\"status\": \"ok\"}";
-        } else {
-            // Manejo de comandos desconocidos o incorrectos
-            return "{\"status\": \"error\", \"error\":\"Mensaje de error\"}";
+            // Processar segons el tipus de missatge
+            if (messageType.equals("userlist")) {
+                JSONArray userList = jsonObject.getJSONArray("content");
+                // Processar la llista d'usuaris
+               
+            } else if (messageType.equals("message")) {
+                String user = jsonObject.getString("user");
+                String content = jsonObject.getString("content");
+                // Processar el missatge i l'usuari
+                
+            } else {
+                System.out.println("Tipus de missatge desconegut: " + messageType);
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
         }
     }
 
