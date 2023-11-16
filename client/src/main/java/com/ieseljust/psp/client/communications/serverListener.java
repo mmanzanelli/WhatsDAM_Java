@@ -32,7 +32,6 @@ public class serverListener implements Runnable {
      * 
      */
     public static ViewModel vm;
-    
 
     public serverListener(ViewModel vm) {
         this.vm = vm;
@@ -51,10 +50,8 @@ public class serverListener implements Runnable {
             listener = new ServerSocket(0);
             CurrentConfig.setlistenPort(listener.getLocalPort());
 
-            
-             while (true) {
+            while (true) {
                 Socket clientSocket = listener.accept(); // Accepta la connexió entrant
-               
 
                 // Llegir el missatge rebut del client
                 BufferedReader reader = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
@@ -67,15 +64,13 @@ public class serverListener implements Runnable {
                 // Tancar el socket del client
                 writer.write("{'status':'ok'}");
                 writer.flush();
-                
+
                 writer.close();
                 reader.close();
-                
+
                 clientSocket.close();
             }
-            
-            
-            
+
         } catch (IOException e) {
             System.out.println("El port " + listenerPort + " està ocupat o és inaccessible.");
             return;
@@ -91,38 +86,35 @@ public class serverListener implements Runnable {
         // però no cal que creem un fil a propòsit per atendre cada missatge, ja que
         // no som un servidor com a tal, i el que estem fent aci, és mantindre un 
         // canal de recepció només amb el servidor.
-        
-        
 //        ViewModel.llistaUsuaris;
-
-        
     }
-      private static void processMessage(String message) {
+
+    private static void processMessage(String message) {
         try {
-            System.out.println("message"+message);
+            System.out.println("message" + message);
             JSONObject jsonObject = new JSONObject(message);
             String messageType = jsonObject.getString("type");
 
             // Processar segons el tipus de missatge
             if (messageType.equals("userlist")) {
                 JSONArray userList = jsonObject.getJSONArray("content");
-                ArrayList <String> users = new ArrayList();//null
+                ArrayList<String> users = new ArrayList();//null
+
                 for (int i = 0; i < userList.length(); i++) {
-                   users.add(userList.toString(i));
-                    
-                    
+                    // users.add(userList.toString(i));
+                    String userName = userList.getString(i);
+                    users.add(userName);
+
                 }
-               
+
                 vm.updateUserList(users);
-               
-                
+
                 // Processar la llista d'usuaris
-               
             } else if (messageType.equals("message")) {
                 String user = jsonObject.getString("user");
                 String content = jsonObject.getString("content");
                 // Processar el missatge i l'usuari
-                Message msg=new Message(user,content);
+                Message msg = new Message(user, content);
                 vm.addMessage(msg);
             } else {
                 System.out.println("Tipus de missatge desconegut: " + messageType);
