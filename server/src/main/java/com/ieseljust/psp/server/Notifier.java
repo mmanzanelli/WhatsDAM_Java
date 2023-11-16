@@ -87,6 +87,7 @@ public class Notifier {
                 // Si volem depurar la resposa que se'ns envia
                 //System.out.println(linia);
 
+                System.out.println("linia:"+linia);
                 resposta = new JSONObject(linia);
 
                 // Aci podriem analitzar la resposta

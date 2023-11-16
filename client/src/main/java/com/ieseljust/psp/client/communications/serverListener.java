@@ -15,10 +15,12 @@ import com.ieseljust.psp.client.ViewModel;
 
 import java.io.InputStreamReader;
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.PrintWriter;
 
 import org.json.JSONObject;
 import org.json.JSONArray;
+import org.json.JSONException;
 
 public class serverListener implements Runnable {
 
@@ -29,7 +31,8 @@ public class serverListener implements Runnable {
      * li envia el servidor de missatgeria i ho processarà de forma adeqüada.
      * 
      */
-    ViewModel vm;
+    public static ViewModel vm;
+    
 
     public serverListener(ViewModel vm) {
         this.vm = vm;
@@ -55,12 +58,19 @@ public class serverListener implements Runnable {
 
                 // Llegir el missatge rebut del client
                 BufferedReader reader = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+                BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(clientSocket.getOutputStream()));
                 String clientMessage = reader.readLine();
 
                 // Processar el missatge rebuda
                 processMessage(clientMessage);
 
                 // Tancar el socket del client
+                writer.write("{'status':'ok'}");
+                writer.flush();
+                
+                writer.close();
+                reader.close();
+                
                 clientSocket.close();
             }
             
@@ -89,19 +99,31 @@ public class serverListener implements Runnable {
     }
       private static void processMessage(String message) {
         try {
+            System.out.println("message"+message);
             JSONObject jsonObject = new JSONObject(message);
             String messageType = jsonObject.getString("type");
 
             // Processar segons el tipus de missatge
             if (messageType.equals("userlist")) {
                 JSONArray userList = jsonObject.getJSONArray("content");
+                ArrayList <String> users = new ArrayList();//null
+                for (int i = 0; i < userList.length(); i++) {
+                   users.add(userList.toString(i));
+                    
+                    
+                }
+               
+                vm.updateUserList(users);
+               
+                
                 // Processar la llista d'usuaris
                
             } else if (messageType.equals("message")) {
                 String user = jsonObject.getString("user");
                 String content = jsonObject.getString("content");
                 // Processar el missatge i l'usuari
-                
+                Message msg=new Message(user,content);
+                vm.addMessage(msg);
             } else {
                 System.out.println("Tipus de missatge desconegut: " + messageType);
             }
@@ -109,7 +131,5 @@ public class serverListener implements Runnable {
             e.printStackTrace();
         }
     }
-
-}
 
 }

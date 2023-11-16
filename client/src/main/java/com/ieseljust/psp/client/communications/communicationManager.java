@@ -95,13 +95,13 @@ public class communicationManager {
              
             JSONObject message = new JSONObject();
             message.put("command", "register");
-            message.put("user", "NomUsuari");
+            message.put("user", CurrentConfig.username());
             message.put("listenPort", CurrentConfig.listenPort()); // Assumint que aquest mètode retorna el port desitjat
 
             sendServer(message.toString());
             
-         }catch(communicationManagerException | JSONException e){
-           throw new CommunicationManagerException("Error en la connexió al servidor", e);
+         }catch(JSONException e){
+           throw new JSONException("Error en la connexió al servidor", e);
              
          }
             
@@ -110,5 +110,6 @@ public class communicationManager {
 
     public static void sendMessage(Message m) {
         // Envia un misstge al servidor (es fa amb una línia!)
+        sendServer(m.toJSONCommand().toString());
     }
 }
